@@ -186,15 +186,16 @@ const CHALLENGES = {
     "Iemand zegt 'borrel': drink als pavlov-reactie.",
     "Eerste limo gespot: die persoon deelt 3 slokken uit.",
     "Selfie in de auto: wie het meest stijf kijkt wint, rest drinkt.",
-    "Noem het corps-motto — wie het niet weet: 2 slokken.",
+    "Vraag iemand van je bak een inside joke te vertellen: wie lacht drinkt.",
     "Doe de koninklijke wave naar een willekeurige auto: iedereen drinkt mee.",
-    "Verzin een regel voor het schachtenlied: wie lacht drinkt."
+    "Verzin een regel voor het schachtenlied: wie lacht drinkt.",
+    "Tel hoeveel bakgenoten er in de auto zitten: wie het eerst weet deelt 2 slokken uit."
   ],
   "Verkleden": [
-    "Stropdas scheef? Die persoon drinkt 2 slokken corps-straf.",
+    "Stropdas scheef? Die persoon drinkt 2 slokken boete.",
     "Toga niet meegebracht? Volle slok als boete.",
     "Spiegel-selfie: wie het stijfst poseert als praeses wint, rest drinkt.",
-    "Zeg 'Voor het corps!' en drink als teken van loyaliteit.",
+    "Maak een bakfoto met alle aanwezige bakgenoten: iedereen proosten daarna.",
     "Knoopsgat-bloem aanwezig? Proost op de outfit.",
     "Wie ruikt naar te veel eau de cologne: 1 slok.",
     "Schoen niet dicht: 2 slokken, net als een schacht op zijn eerste borrel.",
@@ -202,27 +203,29 @@ const CHALLENGES = {
     "Vergeet iemands naam? 1 slok straf, doe het er maar aan.",
     "Pose als senaatstoto: wie lacht drinkt.",
     "Check: corsage/pin zichtbaar? Iedereen proosten.",
-    "Iemand heeft de verkeerde kleur pochet: 2 slokken modestraf."
+    "Iemand heeft de verkeerde kleur pochet: 2 slokken modestraf.",
+    "Vind een bakgenoot met exact dezelfde outfit-kleur: samen proost, de rest kijkt toe."
   ],
   "Proosten": [
     "Cantus-modus: wie een lied inzet mag 3 slokken uitdelen.",
     "'Vivat! Floreat!' roepen: iedereen drinkt.",
     "Bodem omhoog — in de cantus-geest: iedereen leegt het glas.",
     "Wie proosten aanbiedt zonder praeses-flair: 1 slok straf.",
-    "Proosten met de verkeerde hand: 2 slokken corps-correctie.",
+    "Proosten met de verkeerde hand: 2 slokken etiquette-straf.",
     "Noem je dispuut hardop: de rest drinkt uit jaloezie.",
     "'Gaudeamus Igitur' neuriën: wie stopt drinkt.",
     "Iemand zegt 'Gezellig': pavlov-slok.",
     "Glas leeg vóór de toast: bijvullen EN 1 extra slok.",
     "Iemand morst: diegene drinkt dubbel — klassieke schacht.",
-    "Proosten zonder oogcontact: 1 slok straf (corpsregel).",
-    "'Op het corps!' zeggen en vervolgens NIET drinken: 3 slokken als lafaard."
+    "Verzin een baktoast in 10 seconden: wie geen idee heeft drinkt 2 slokken.",
+    "Proosten zonder oogcontact: 1 slok straf (ongeschreven regel).",
+    "'Op de bak!' roepen: je bakgenoten drinken mee, de rest kijkt jalours toe."
   ],
   "Diner": [
     "Stilte langer dan 5 sec: 1 slok — saaier dan een ALV.",
     "Bestek valt: 2 slokken, net als de schacht die het glas omstootte.",
     "Serveerder vergeet iets: jij deelt 3 slokken uit als praeses.",
-    "Iemand eet soep met de foerste vork: corps-straf, 2 slokken.",
+    "Iemand eet soep met de foerste vork: tafelfout, 2 slokken.",
     "'Smakelijk' zeggen vóór de praeses: 1 slok boete.",
     "Geef commentaar op de wijn als sommelier: rest drinkt uit respect.",
     "Tik je per ongeluk je glas aan: 1 slok — zelfs hier gelden cantus-regels.",
@@ -230,21 +233,23 @@ const CHALLENGES = {
     "Iemand bestelt water: medelij-slok voor de rest.",
     "Broodmandje leeg zonder te delen: 2 slokken schaamlap-straf.",
     "Toespraak begint: glas snel bijvullen, anders mis je de toast.",
-    "Dessert binnengebracht: proost ter ere van de banketbakker."
+    "Dessert binnengebracht: proost ter ere van de banketbakker.",
+    "Noem iets waar je bak berucht om staat: iedereen lacht of drinkt."
   ],
   "Feest": [
     "Soos-jump op de dansvloer: iedereen doet mee of drinkt.",
     "DJ draait een cantus-klassieker: drink tot het refrein.",
-    "Schoenen uit? 5 slokken corps-forfait.",
+    "Schoenen uit? 5 slokken dansboete.",
     "Dansen met een oud-lid: deel 2 slokken uit als eerbetoon.",
     "Iemand valt op de dansvloer: 3 slokken voor de getuigen.",
     "Slechte overgang door de DJ: praeses wijst aan wie drinkt.",
-    "Corps-song op de speakers: even staan, dan drinken.",
+    "Jouw bak staat tegelijk op de dansvloer: proost op het bakjaar!",
     "Macarena: iedereen doet mee, wie stopt drinkt.",
     "Dansen met een wildvreemde: deel 2 slokken uit.",
     "Langzame dans: weigeraars drinken 2 slokken eenzaamheids-boete.",
     "Ballonnen op de dansvloer: wie er eentje kapt deelt 3 slokken uit.",
-    "Iemand filmt de dansvloer: iedereen poseert of drinkt."
+    "Iemand filmt de dansvloer: iedereen poseert of drinkt.",
+    "Organiseer een bakdans in een cirkel: wie weigert drinkt 3 slokken."
   ]
 };
 
@@ -252,20 +257,22 @@ const QUESTS = [
   { id:1,  title:"Praeses voor een Dag",  desc:"Geef een toast die iedereen hoort",               pts:75  },
   { id:2,  title:"Cantus King",           desc:"Zing een volledig lied met de juiste tekst",       pts:80  },
   { id:3,  title:"Soos-Diplomaat",        desc:"Praat met mensen van 3 verschillende disputen",    pts:60  },
-  { id:4,  title:"Schacht-Supervisor",    desc:"Leg iemand een zelfverzonnen corps-regel uit",     pts:40  },
+  { id:4,  title:"Schacht-Supervisor",    desc:"Leg iemand een zelfverzonnen huisregel uit",       pts:40  },
   { id:5,  title:"Toga-Fotograaf",        desc:"Maak een foto met iemand in toga",                 pts:30  },
   { id:6,  title:"Borrel-Baron",          desc:"Bestel een rondje voor iedereen aan tafel",        pts:100 },
   { id:7,  title:"Netwerker",             desc:"Vraag iemands nummer die je niet kent",            pts:40  },
   { id:8,  title:"Sjaars-Mentor",         desc:"Herken een eerstejaars en geef ongewenst advies",  pts:25  },
-  { id:9,  title:"Corps-Koppel",          desc:"Dans terwijl je een corps-lied zingt",             pts:50  },
-  { id:10, title:"Oud-Lid Gevonden",      desc:"Voer een gesprek van 5 min met een oud-lid",       pts:35  }
+  { id:9,  title:"Bak-Koppel",            desc:"Vraag een bakgenoot mee de dansvloer op",          pts:50  },
+  { id:10, title:"Oud-Lid Gevonden",      desc:"Voer een gesprek van 5 min met een oud-lid",       pts:35  },
+  { id:11, title:"Bak-Kampioen",          desc:"Verzamel alle aanwezige bakgenoten op één foto",   pts:65  },
+  { id:12, title:"Bak-Toast",             desc:"Geef een speciale toast gericht aan je bak",       pts:55  }
 ];
 
 const BINGO_ITEMS = [
   "Toga gespot","Schacht herkend","Cantus gezongen","Stropdas scheef",
-  "Primus aangewezen","Soos-dans","Borrel besteld","Dispuut-pin gezien",
+  "Hele bak aanwezig","Soos-dans","Borrel besteld","Dispuut-pin gezien",
   "Toespraak gehoord","Iemand valt","Lege fles","Fotobooth rij",
-  "Matching outfits","Oud-lid gespot","Officier aanwezig"
+  "Matching outfits","Oud-lid gespot","Bak-foto gemaakt"
 ];
 
 let scores = { user: 0, partner: 0 };
