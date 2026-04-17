@@ -10,6 +10,7 @@
 <title>Gala Royale</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <style>
 :root {
   --bg:#0a0a0a;--surface:#141414;--surface2:#1e1e1e;
@@ -90,11 +91,54 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 @keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
 .pop{animation:pop .25s ease}
+
+/* SYNC */
+.sync-btn{margin:14px 20px 0;width:calc(100% - 40px);padding:12px;border-radius:12px;border:.5px solid rgba(127,119,221,.4);background:linear-gradient(135deg,rgba(127,119,221,.15),rgba(127,119,221,.05));color:var(--purple);font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.sync-btn:active{transform:scale(.98)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(6px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.visible{opacity:1;pointer-events:all}
+.modal-box{background:var(--surface);border:.5px solid var(--border);border-radius:20px;padding:24px 20px;max-width:320px;width:100%;text-align:center;transform:translateY(12px);transition:transform .25s}
+.modal-overlay.visible .modal-box{transform:none}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;text-transform:uppercase;margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.modal-qr-wrap{background:#fff;border-radius:12px;padding:12px;display:inline-block;margin-bottom:20px}
+.modal-btn-row{display:flex;gap:8px;flex-direction:column}
+.btn-modal{width:100%;padding:13px;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;transition:all .2s;border:.5px solid}
+.btn-modal:active{transform:scale(.97)}
+.btn-modal-gold{background:linear-gradient(135deg,rgba(201,168,76,.25),rgba(201,168,76,.08));border-color:rgba(201,168,76,.4);color:var(--accent)}
+.btn-modal-muted{background:var(--surface2);border-color:var(--border);color:var(--muted)}
+.import-stat{display:flex;justify-content:space-between;padding:9px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px;font-size:13px}
+.import-stat span:last-child{font-weight:700;color:var(--accent)}
 </style>
 </head>
 <body>
 
 <div class="toast" id="toast"></div>
+
+<!-- SYNC MODAL -->
+<div class="modal-overlay" id="sync-modal">
+  <div class="modal-box">
+    <div class="modal-title">📲 QR Sync</div>
+    <div class="modal-sub">Laat je vriendin deze code scannen om jouw huidige scores over te nemen</div>
+    <div class="modal-qr-wrap" id="qr-container"></div>
+    <div class="modal-btn-row">
+      <button class="btn-modal btn-modal-muted" onclick="closeSyncModal()">Sluiten</button>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal-overlay" id="import-modal">
+  <div class="modal-box">
+    <div class="modal-title">⬇️ Importeren?</div>
+    <div class="modal-sub">Je hebt een sync-link geopend. Dit vervangt jouw huidige scores.</div>
+    <div id="import-preview"></div>
+    <div class="modal-btn-row" style="margin-top:16px">
+      <button class="btn-modal btn-modal-gold" onclick="doImport()">Importeren</button>
+      <button class="btn-modal btn-modal-muted" onclick="closeImportModal()">Annuleren</button>
+    </div>
+  </div>
+</div>
 
 <!-- UITDAGINGEN -->
 <div class="page active" id="page-main">
@@ -116,6 +160,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="stat-label">💑 Vriendin</div>
       </div>
     </div>
+    <button class="sync-btn" onclick="showSyncModal()">📲 Sync via QR-Code</button>
   </div>
 
   <div class="phase-scroll" id="phase-pills"></div>
@@ -412,6 +457,78 @@ function renderBingo() {
   });
 }
 
+let pendingImportData = null;
+
+function buildSyncUrl() {
+  const base = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams({
+    sync: '1',
+    u: scores.user,
+    p: scores.partner,
+    q: [...completedQuests].join(','),
+    b: [...bingoDone].join(',')
+  });
+  return base + '?' + params.toString();
+}
+
+function showSyncModal() {
+  const url = buildSyncUrl();
+  const container = document.getElementById('qr-container');
+  container.innerHTML = '';
+  const qr = qrcode(0, 'M');
+  qr.addData(url);
+  qr.make();
+  const img = new Image();
+  img.src = qr.createDataURL(5, 0);
+  img.style.cssText = 'width:200px;height:200px;display:block';
+  container.appendChild(img);
+  document.getElementById('sync-modal').classList.add('visible');
+}
+
+function closeSyncModal() {
+  document.getElementById('sync-modal').classList.remove('visible');
+}
+
+function closeImportModal() {
+  document.getElementById('import-modal').classList.remove('visible');
+  history.replaceState(null, '', window.location.pathname);
+}
+
+function checkSyncParams() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('sync') !== '1') return;
+  pendingImportData = {
+    user: parseInt(params.get('u') || '0', 10) || 0,
+    partner: parseInt(params.get('p') || '0', 10) || 0,
+    quests: (params.get('q') || '').split(',').filter(Boolean).map(Number),
+    bingo: (params.get('b') || '').split(',').filter(Boolean).map(Number)
+  };
+  document.getElementById('import-preview').innerHTML = `
+    <div class="import-stat"><span>👤 Jij</span><span>${pendingImportData.user} pts</span></div>
+    <div class="import-stat"><span>💑 Vriendin</span><span>${pendingImportData.partner} pts</span></div>
+    <div class="import-stat"><span>🏆 Quests voltooid</span><span>${pendingImportData.quests.length} / ${QUESTS.length}</span></div>
+    <div class="import-stat"><span>🎯 Bingo-items</span><span>${pendingImportData.bingo.length} / ${BINGO_ITEMS.length}</span></div>
+  `;
+  document.getElementById('import-modal').classList.add('visible');
+}
+
+function doImport() {
+  if (!pendingImportData) return;
+  scores = { user: pendingImportData.user, partner: pendingImportData.partner };
+  completedQuests = new Set(pendingImportData.quests);
+  bingoDone = new Set(pendingImportData.bingo);
+  saveState();
+  document.getElementById('score-user').textContent = scores.user;
+  document.getElementById('score-partner').textContent = scores.partner;
+  document.getElementById('score-display').textContent = (scores.user + scores.partner) + ' pts';
+  document.getElementById('quest-list').innerHTML = '';
+  renderQuests();
+  document.getElementById('bingo-grid').innerHTML = '';
+  renderBingo();
+  closeImportModal();
+  showToast('✅ Scores geïmporteerd!');
+}
+
 loadState();
 document.getElementById('score-user').textContent = scores.user;
 document.getElementById('score-partner').textContent = scores.partner;
@@ -419,6 +536,7 @@ document.getElementById('score-display').textContent = (scores.user + scores.par
 initPhases();
 renderQuests();
 renderBingo();
+checkSyncParams();
 </script>
 </body>
 </html>
