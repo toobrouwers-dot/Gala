@@ -57,8 +57,14 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .challenge-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,168,76,.06),transparent);pointer-events:none}
 .challenge-text{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;line-height:1.3;color:var(--text)}
 .challenge-text.placeholder{color:var(--muted);font-size:18px;font-weight:400}
-.btn-next{width:100%;padding:16px;border-radius:14px;border:.5px solid rgba(201,168,76,.4);background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-next{width:100%;padding:16px;border-radius:14px;border:.5px solid rgba(201,168,76,.4);background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin-bottom:10px}
 .btn-next:active{transform:scale(.97)}
+.score-btns{display:none;gap:8px;margin-top:0}
+.score-btns.visible{display:flex}
+.btn-score{flex:1;padding:13px 8px;border-radius:14px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:.3px;text-transform:uppercase;cursor:pointer;transition:all .2s;border:.5px solid}
+.btn-score:active{transform:scale(.97)}
+.btn-score-user{background:linear-gradient(135deg,rgba(100,149,237,.2),rgba(100,149,237,.08));border-color:rgba(100,149,237,.4);color:#6495ed}
+.btn-score-partner{background:linear-gradient(135deg,rgba(220,120,180,.2),rgba(220,120,180,.08));border-color:rgba(220,120,180,.4);color:#dc78b4}
 
 /* QUESTS */
 .section-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:20px 20px 10px}
@@ -119,6 +125,10 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <div class="challenge-text placeholder" id="challenge-text">Kies een fase en tik op Volgende Uitdaging</div>
     </div>
     <button class="btn-next" onclick="nextChallenge()">⚡ Volgende Uitdaging</button>
+    <div class="score-btns" id="score-btns">
+      <button class="btn-score btn-score-user" onclick="scoreFor('user')">👤 Ik deed het! +1</button>
+      <button class="btn-score btn-score-partner" onclick="scoreFor('partner')">💑 Zij deed het! +1</button>
+    </div>
   </div>
 </div>
 
@@ -233,6 +243,23 @@ let currentPhase = null;
 let completedQuests = new Set();
 let bingoDone = new Set();
 
+function saveState() {
+  localStorage.setItem('gala_scores', JSON.stringify(scores));
+  localStorage.setItem('gala_quests', JSON.stringify([...completedQuests]));
+  localStorage.setItem('gala_bingo', JSON.stringify([...bingoDone]));
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem('gala_scores');
+    if (s) scores = JSON.parse(s);
+    const q = localStorage.getItem('gala_quests');
+    if (q) completedQuests = new Set(JSON.parse(q));
+    const b = localStorage.getItem('gala_bingo');
+    if (b) bingoDone = new Set(JSON.parse(b));
+  } catch(e) {}
+}
+
 function switchPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
@@ -247,14 +274,21 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 2000);
 }
 
-function addScore(amount) {
-  scores.user += amount;
-  const el = document.getElementById('score-user');
-  el.textContent = scores.user;
+function addScore(who, amount) {
+  scores[who] += amount;
+  const elId = who === 'user' ? 'score-user' : 'score-partner';
+  const el = document.getElementById(elId);
+  el.textContent = scores[who];
   el.classList.remove('pop');
   void el.offsetWidth;
   el.classList.add('pop');
-  document.getElementById('score-display').textContent = scores.user + ' pts';
+  document.getElementById('score-display').textContent = (scores.user + scores.partner) + ' pts';
+  saveState();
+}
+
+function scoreFor(who) {
+  addScore(who, 1);
+  showToast(who === 'user' ? '👤 +1 punt!' : '💑 +1 punt!');
 }
 
 function initPhases() {
@@ -284,8 +318,7 @@ function nextChallenge() {
   const el = document.getElementById('challenge-text');
   el.classList.remove('placeholder');
   el.textContent = text;
-  addScore(1);
-  showToast('+1 punt!');
+  document.getElementById('score-btns').classList.add('visible');
 }
 
 function renderQuests() {
@@ -307,6 +340,10 @@ function renderQuests() {
       </div>
       <div class="quest-pts">+${q.pts}</div>
     `;
+    if (completedQuests.has(q.id)) {
+      card.classList.add('done');
+      card.querySelector('.quest-check').textContent = '✓';
+    }
     card.onclick = () => completeQuest(q.id, q.pts);
     list.appendChild(card);
   });
@@ -317,7 +354,7 @@ function completeQuest(id, pts) {
   completedQuests.add(id);
   document.getElementById('quest-' + id).classList.add('done');
   document.getElementById('check-' + id).textContent = '✓';
-  addScore(pts);
+  addScore('user', pts);
   showToast('+' + pts + ' punten!');
 }
 
@@ -325,19 +362,23 @@ function renderBingo() {
   const grid = document.getElementById('bingo-grid');
   BINGO_ITEMS.forEach((item, i) => {
     const el = document.createElement('div');
-    el.className = 'bingo-item';
+    el.className = 'bingo-item' + (bingoDone.has(i) ? ' active' : '');
     el.textContent = item;
     el.onclick = () => {
       if (bingoDone.has(i)) return;
       bingoDone.add(i);
       el.classList.add('active');
-      addScore(5);
+      addScore('user', 5);
       showToast('+5 punten! Bingo!');
     };
     grid.appendChild(el);
   });
 }
 
+loadState();
+document.getElementById('score-user').textContent = scores.user;
+document.getElementById('score-partner').textContent = scores.partner;
+document.getElementById('score-display').textContent = (scores.user + scores.partner) + ' pts';
 initPhases();
 renderQuests();
 renderBingo();
