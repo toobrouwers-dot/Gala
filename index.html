@@ -144,6 +144,9 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .import-stat span:last-child{font-weight:700;color:var(--accent)}
 .reset-btn{margin:8px 20px 0;width:calc(100% - 40px);padding:12px;border-radius:12px;border:.5px solid rgba(229,57,53,.4);background:linear-gradient(135deg,rgba(229,57,53,.15),rgba(229,57,53,.05));color:#e53935;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
 .reset-btn:active{transform:scale(.98)}
+.undo-btn{margin:8px 20px 0;width:calc(100% - 40px);padding:12px;border-radius:12px;border:.5px solid rgba(100,149,237,.4);background:linear-gradient(135deg,rgba(100,149,237,.15),rgba(100,149,237,.05));color:#6495ed;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.undo-btn:disabled{opacity:.3;cursor:default}
+.undo-btn:not(:disabled):active{transform:scale(.98)}
 .btn-modal-danger{background:linear-gradient(135deg,rgba(229,57,53,.25),rgba(229,57,53,.08));border-color:rgba(229,57,53,.4);color:#e53935}
 .btn-modal-user{background:linear-gradient(135deg,rgba(100,149,237,.2),rgba(100,149,237,.08));border-color:rgba(100,149,237,.4);color:#6495ed}
 .btn-modal-partner{background:linear-gradient(135deg,rgba(220,120,180,.2),rgba(220,120,180,.08));border-color:rgba(220,120,180,.4);color:#dc78b4}
@@ -249,6 +252,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     </div>
     <button class="sync-btn" onclick="showSyncModal()">📲 Sync via QR-Code</button>
     <button class="reset-btn" onclick="showResetModal()">🗑️ Nieuw Spel</button>
+    <button class="undo-btn" id="undo-btn" onclick="undoAction()" disabled>↩️ Ongedaan Maken</button>
   </div>
 
   <div class="phase-scroll" id="phase-pills"></div>
@@ -415,6 +419,42 @@ let bingoDone = new Set();
 let shownChallenges = {};
 let whoCallback = null;
 
+const MAX_UNDO = 20;
+let undoHistory = [];
+
+function pushHistory() {
+  undoHistory.push({
+    scores: { ...scores },
+    completedQuests: new Set(completedQuests),
+    bingoDone: new Set(bingoDone)
+  });
+  if (undoHistory.length > MAX_UNDO) undoHistory.shift();
+  updateUndoBtn();
+}
+
+function updateUndoBtn() {
+  const btn = document.getElementById('undo-btn');
+  if (btn) btn.disabled = undoHistory.length === 0;
+}
+
+function undoAction() {
+  if (undoHistory.length === 0) return;
+  const prev = undoHistory.pop();
+  scores = prev.scores;
+  completedQuests = prev.completedQuests;
+  bingoDone = prev.bingoDone;
+  saveState();
+  document.getElementById('score-user').textContent = scores.user;
+  document.getElementById('score-partner').textContent = scores.partner;
+  document.getElementById('score-display').textContent = (scores.user + scores.partner) + ' pts';
+  document.getElementById('quest-list').innerHTML = '';
+  renderQuests();
+  document.getElementById('bingo-grid').innerHTML = '';
+  renderBingo();
+  updateUndoBtn();
+  showToast('↩️ Ongedaan gemaakt!');
+}
+
 function saveState() {
   localStorage.setItem('gala_scores', JSON.stringify(scores));
   localStorage.setItem('gala_quests', JSON.stringify([...completedQuests]));
@@ -470,6 +510,7 @@ function addScore(who, amount) {
 }
 
 function scoreFor(who) {
+  pushHistory();
   addScore(who, 1);
   showToast(who === 'user' ? '👤 +1 punt!' : '💑 +1 punt!');
 }
@@ -555,6 +596,7 @@ function renderQuests() {
 function completeQuest(id, pts) {
   if (completedQuests.has(id)) { showToast('Al voltooid!'); return; }
   showWhoModal('+' + pts + ' pts — Wie deed het?', '', who => {
+    pushHistory();
     completedQuests.add(id);
     document.getElementById('quest-' + id).classList.add('done');
     document.getElementById('check-' + id).textContent = '✓';
@@ -572,6 +614,7 @@ function renderBingo() {
     el.onclick = () => {
       if (bingoDone.has(i)) return;
       showWhoModal('Bingo! +5 pts — Wie spotted het?', '', who => {
+        pushHistory();
         bingoDone.add(i);
         el.classList.add('active');
         addScore(who, 5);
