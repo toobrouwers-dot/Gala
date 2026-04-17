@@ -171,6 +171,17 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .beer-total{margin:4px 16px 0;background:var(--surface);border:.5px solid var(--border);border-radius:14px;padding:14px 20px;display:flex;justify-content:space-between;align-items:center}
 .beer-total-label{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
 .beer-total-num{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--accent)}
+
+/* ROULETTE */
+.beer-roulette-btn{width:100%;padding:16px;border-radius:14px;border:.5px solid rgba(255,140,0,.4);background:linear-gradient(135deg,rgba(255,140,0,.2),rgba(255,100,0,.08));color:#ff9020;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.beer-roulette-btn:active{transform:scale(.97)}
+.roulette-display{font-family:'Barlow Condensed',sans-serif;font-size:48px;font-weight:800;line-height:1;color:var(--text);padding:24px 0 6px;min-height:96px;display:flex;align-items:center;justify-content:center;transition:color .1s}
+.roulette-display.spinning{color:var(--muted)}
+.roulette-display.winner-user{color:#6495ed}
+.roulette-display.winner-partner{color:#dc78b4}
+.roulette-sub{font-size:14px;color:var(--muted);margin-bottom:20px;min-height:22px;text-align:center}
+@keyframes winner-pop{0%{transform:scale(1)}35%{transform:scale(1.2)}65%{transform:scale(.94)}100%{transform:scale(1)}}
+.roulette-display.winner-anim{animation:winner-pop .45s ease}
 </style>
 </head>
 <body>
@@ -247,6 +258,19 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="modal-btn-row" style="margin-top:16px">
       <button class="btn-modal btn-modal-gold" onclick="doImport()">Importeren</button>
       <button class="btn-modal btn-modal-muted" onclick="closeImportModal()">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<!-- ROULETTE MODAL -->
+<div class="modal-overlay" id="roulette-modal">
+  <div class="modal-box">
+    <div class="modal-title">🎰 Bier Roulette</div>
+    <div class="modal-sub">Wie moet z'n bier atten?</div>
+    <div class="roulette-display" id="roulette-display">🍺</div>
+    <div class="roulette-sub" id="roulette-sub"></div>
+    <div class="modal-btn-row">
+      <button class="btn-modal btn-modal-muted" id="roulette-close-btn" onclick="closeRouletteModal()">Sluiten</button>
     </div>
   </div>
 </div>
@@ -328,6 +352,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       <span class="beer-total-label">🍻 Totaal samen</span>
       <span class="beer-total-num" id="beer-total">0</span>
     </div>
+    <button class="beer-roulette-btn" onclick="spinBeerRoulette()">🎰 Bier Roulette</button>
   </div>
 </div>
 
@@ -826,6 +851,49 @@ function changeBeer(who, delta) {
   renderBeerUI();
   saveState();
   if (delta > 0) showToast(who === 'user' ? '🍺 Proost!' : '🍺 Proost vriendin!');
+}
+
+function spinBeerRoulette() {
+  const modal = document.getElementById('roulette-modal');
+  const display = document.getElementById('roulette-display');
+  const sub = document.getElementById('roulette-sub');
+  const closeBtn = document.getElementById('roulette-close-btn');
+  display.textContent = '🍺';
+  display.className = 'roulette-display';
+  sub.textContent = 'Draaien...';
+  closeBtn.style.visibility = 'hidden';
+  modal.classList.add('visible');
+  const options = [
+    { who: 'user', label: '👤 Jij' },
+    { who: 'partner', label: '💑 Vriendin' }
+  ];
+  const winner = options[Math.floor(Math.random() * 2)];
+  let speed = 80;
+  let ticks = 0;
+  const totalTicks = 18 + Math.floor(Math.random() * 8);
+  let idx = 0;
+  function tick() {
+    display.textContent = options[idx % 2].label;
+    display.className = 'roulette-display spinning';
+    idx++;
+    ticks++;
+    const progress = ticks / totalTicks;
+    if (progress > 0.55) speed = 80 + Math.round(((progress - 0.55) / 0.45) * 380);
+    if (ticks < totalTicks) {
+      setTimeout(tick, speed);
+    } else {
+      display.textContent = winner.label;
+      display.className = 'roulette-display winner-anim ' + (winner.who === 'user' ? 'winner-user' : 'winner-partner');
+      sub.textContent = "moet z'n bier atten! 🍺";
+      closeBtn.style.visibility = 'visible';
+      changeBeer(winner.who, 1);
+    }
+  }
+  setTimeout(tick, 300);
+}
+
+function closeRouletteModal() {
+  document.getElementById('roulette-modal').classList.remove('visible');
 }
 
 function closeOpening() {
