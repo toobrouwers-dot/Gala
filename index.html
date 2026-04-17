@@ -186,16 +186,16 @@ const CHALLENGES = {
     "Iemand zegt 'borrel': drink als pavlov-reactie.",
     "Eerste limo gespot: die persoon deelt 3 slokken uit.",
     "Selfie in de auto: wie het meest stijf kijkt wint, rest drinkt.",
-    "Vraag iemand van je bak een inside joke te vertellen: wie lacht drinkt.",
+    "Wie als eerste 'bak!' roept bepaalt wie er één att: die persoon drinkt zijn glas leeg.",
     "Doe de koninklijke wave naar een willekeurige auto: iedereen drinkt mee.",
     "Verzin een regel voor het schachtenlied: wie lacht drinkt.",
-    "Tel hoeveel bakgenoten er in de auto zitten: wie het eerst weet deelt 2 slokken uit."
+    "Bakrace in de auto: wie zijn glas het snelst leeg heeft mag 3 slokken uitdelen."
   ],
   "Verkleden": [
     "Stropdas scheef? Die persoon drinkt 2 slokken boete.",
     "Toga niet meegebracht? Volle slok als boete.",
     "Spiegel-selfie: wie het stijfst poseert als praeses wint, rest drinkt.",
-    "Maak een bakfoto met alle aanwezige bakgenoten: iedereen proosten daarna.",
+    "Verschijnen zonder bak in de hand? 2 slokken inhaalstraf.",
     "Knoopsgat-bloem aanwezig? Proost op de outfit.",
     "Wie ruikt naar te veel eau de cologne: 1 slok.",
     "Schoen niet dicht: 2 slokken, net als een schacht op zijn eerste borrel.",
@@ -204,7 +204,7 @@ const CHALLENGES = {
     "Pose als senaatstoto: wie lacht drinkt.",
     "Check: corsage/pin zichtbaar? Iedereen proosten.",
     "Iemand heeft de verkeerde kleur pochet: 2 slokken modestraf.",
-    "Vind een bakgenoot met exact dezelfde outfit-kleur: samen proost, de rest kijkt toe."
+    "Wie het smaakvolst gekleed is bepaalt wie een bak att."
   ],
   "Proosten": [
     "Cantus-modus: wie een lied inzet mag 3 slokken uitdelen.",
@@ -217,9 +217,9 @@ const CHALLENGES = {
     "Iemand zegt 'Gezellig': pavlov-slok.",
     "Glas leeg vóór de toast: bijvullen EN 1 extra slok.",
     "Iemand morst: diegene drinkt dubbel — klassieke schacht.",
-    "Verzin een baktoast in 10 seconden: wie geen idee heeft drinkt 2 slokken.",
+    "Baktoast: geef een toast en att daarna je bak in één keer leeg.",
     "Proosten zonder oogcontact: 1 slok straf (ongeschreven regel).",
-    "'Op de bak!' roepen: je bakgenoten drinken mee, de rest kijkt jalours toe."
+    "'Op een bak!' roepen en je glas leeggooien: wie niet meedoet drinkt dubbel."
   ],
   "Diner": [
     "Stilte langer dan 5 sec: 1 slok — saaier dan een ALV.",
@@ -234,7 +234,7 @@ const CHALLENGES = {
     "Broodmandje leeg zonder te delen: 2 slokken schaamlap-straf.",
     "Toespraak begint: glas snel bijvullen, anders mis je de toast.",
     "Dessert binnengebracht: proost ter ere van de banketbakker.",
-    "Noem iets waar je bak berucht om staat: iedereen lacht of drinkt."
+    "Wie zonder bak aan tafel zit krijgt er eentje opgelegd — en att hem meteen."
   ],
   "Feest": [
     "Soos-jump op de dansvloer: iedereen doet mee of drinkt.",
@@ -243,13 +243,13 @@ const CHALLENGES = {
     "Dansen met een oud-lid: deel 2 slokken uit als eerbetoon.",
     "Iemand valt op de dansvloer: 3 slokken voor de getuigen.",
     "Slechte overgang door de DJ: praeses wijst aan wie drinkt.",
-    "Jouw bak staat tegelijk op de dansvloer: proost op het bakjaar!",
+    "Bakuitdaging: wie zijn bak het snelst leeg heeft op de dansvloer wint, rest geeft een rondje.",
     "Macarena: iedereen doet mee, wie stopt drinkt.",
     "Dansen met een wildvreemde: deel 2 slokken uit.",
     "Langzame dans: weigeraars drinken 2 slokken eenzaamheids-boete.",
     "Ballonnen op de dansvloer: wie er eentje kapt deelt 3 slokken uit.",
     "Iemand filmt de dansvloer: iedereen poseert of drinkt.",
-    "Organiseer een bakdans in een cirkel: wie weigert drinkt 3 slokken."
+    "Bakrace in een cirkel: laatste die zijn bak leeg heeft att er nog eentje."
   ]
 };
 
@@ -262,17 +262,17 @@ const QUESTS = [
   { id:6,  title:"Borrel-Baron",          desc:"Bestel een rondje voor iedereen aan tafel",        pts:100 },
   { id:7,  title:"Netwerker",             desc:"Vraag iemands nummer die je niet kent",            pts:40  },
   { id:8,  title:"Sjaars-Mentor",         desc:"Herken een eerstejaars en geef ongewenst advies",  pts:25  },
-  { id:9,  title:"Bak-Koppel",            desc:"Vraag een bakgenoot mee de dansvloer op",          pts:50  },
+  { id:9,  title:"Bak-Koppel",            desc:"Drink tegelijk een bak leeg met iemand anders",    pts:50  },
   { id:10, title:"Oud-Lid Gevonden",      desc:"Voer een gesprek van 5 min met een oud-lid",       pts:35  },
-  { id:11, title:"Bak-Kampioen",          desc:"Verzamel alle aanwezige bakgenoten op één foto",   pts:65  },
-  { id:12, title:"Bak-Toast",             desc:"Geef een speciale toast gericht aan je bak",       pts:55  }
+  { id:11, title:"Bak-Kampioen",          desc:"At als eerste 3 bakken op de avond",               pts:65  },
+  { id:12, title:"Bak-Toast",             desc:"Geef een toast en att daarna je bak in één keer",  pts:55  }
 ];
 
 const BINGO_ITEMS = [
   "Toga gespot","Schacht herkend","Cantus gezongen","Stropdas scheef",
-  "Hele bak aanwezig","Soos-dans","Borrel besteld","Dispuut-pin gezien",
+  "Iemand attent een bak","Soos-dans","Borrel besteld","Dispuut-pin gezien",
   "Toespraak gehoord","Iemand valt","Lege fles","Fotobooth rij",
-  "Matching outfits","Oud-lid gespot","Bak-foto gemaakt"
+  "Matching outfits","Oud-lid gespot","Bakrace gewonnen"
 ];
 
 let scores = { user: 0, partner: 0 };
