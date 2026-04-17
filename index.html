@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gala Royale</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <header class="score-bar">
+        <div class="player"><span class="name">Jij</span><span id="score-user" class="score">0</span></div>
+        <div class="divider">|</div>
+        <div class="player"><span class="name">Vriendin</span><span id="score-partner" class="score">0</span></div>
+    </header>
+
+    <div class="phase-selector">
+        <select id="phase-select" onchange="game.changePhase()"></select>
+    </div>
+
+    <main id="view-container">
+        <section id="view-challenges" class="view">
+            <div class="card" id="challenge-card"><p id="challenge-text">Kies een fase en start...</p></div>
+            <button onclick="game.nextChallenge()" class="btn-primary">Volgende Uitdaging</button>
+        </section>
+        <section id="view-quests" class="view hidden">
+            <h2 class="section-title">Gala Quests</h2>
+            <div id="quest-list"></div>
+        </section>
+        <section id="view-bingo" class="view hidden">
+            <div class="bingo-grid" id="bingo-grid"></div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav">
+        <button onclick="ui.switchView('challenges')">Main</button>
+        <button onclick="ui.switchView('quests')">Quests</button>
+        <button onclick="ui.switchView('bingo')">Bingo</button>
+    </nav>
+
+    <script src="assets/js/content.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
