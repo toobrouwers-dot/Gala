@@ -1,0 +1,13 @@
+:root { --pino-blue: #0088ff; --deep-purple: #120129; --glass: rgba(255, 255, 255, 0.08); }
+body { background: radial-gradient(circle at top, #2d004d, var(--deep-purple)); color: white; font-family: sans-serif; margin: 0; height: 100vh; display: flex; flex-direction: column; }
+.score-bar { display: flex; justify-content: space-around; padding: 20px; border-bottom: 2px solid var(--pino-blue); }
+.score { color: var(--pino-blue); font-weight: 800; }
+.card { background: var(--glass); border: 1px solid var(--pino-blue); border-radius: 20px; padding: 30px; margin: 20px; text-align: center; }
+.quest-card { background: var(--glass); margin: 10px 20px; padding: 15px; border-radius: 12px; border-left: 4px solid var(--pino-blue); display: flex; justify-content: space-between; }
+.quest-card.completed { opacity: 0.5; text-decoration: line-through; }
+.bingo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 15px; }
+.bingo-item { background: var(--glass); aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; text-align: center; border-radius: 8px; }
+.bingo-item.active { background: var(--pino-blue); color: var(--deep-purple); }
+.bottom-nav { position: fixed; bottom: 0; width: 100%; display: flex; background: #000; }
+.bottom-nav button { flex: 1; border: none; padding: 20px; background: none; color: white; }
+.hidden { display: none; }
