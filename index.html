@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<link rel="manifest" href="manifest.json">
 <style>
 :root {
   --bg:#0a0a0a;--surface:#141414;--surface2:#1e1e1e;
@@ -109,11 +110,41 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
 .btn-modal-muted{background:var(--surface2);border-color:var(--border);color:var(--muted)}
 .import-stat{display:flex;justify-content:space-between;padding:9px 12px;background:var(--surface2);border-radius:8px;margin-bottom:6px;font-size:13px}
 .import-stat span:last-child{font-weight:700;color:var(--accent)}
+.reset-btn{margin:8px 20px 0;width:calc(100% - 40px);padding:12px;border-radius:12px;border:.5px solid rgba(229,57,53,.4);background:linear-gradient(135deg,rgba(229,57,53,.15),rgba(229,57,53,.05));color:#e53935;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .2s}
+.reset-btn:active{transform:scale(.98)}
+.btn-modal-danger{background:linear-gradient(135deg,rgba(229,57,53,.25),rgba(229,57,53,.08));border-color:rgba(229,57,53,.4);color:#e53935}
+.btn-modal-user{background:linear-gradient(135deg,rgba(100,149,237,.2),rgba(100,149,237,.08));border-color:rgba(100,149,237,.4);color:#6495ed}
+.btn-modal-partner{background:linear-gradient(135deg,rgba(220,120,180,.2),rgba(220,120,180,.08));border-color:rgba(220,120,180,.4);color:#dc78b4}
 </style>
 </head>
 <body>
 
 <div class="toast" id="toast"></div>
+
+<!-- RESET MODAL -->
+<div class="modal-overlay" id="reset-modal">
+  <div class="modal-box">
+    <div class="modal-title">🗑️ Nieuw Spel?</div>
+    <div class="modal-sub">Dit verwijdert alle scores, quests en bingo-items. Dit kan niet ongedaan worden gemaakt.</div>
+    <div class="modal-btn-row">
+      <button class="btn-modal btn-modal-danger" onclick="doReset()">Opnieuw beginnen</button>
+      <button class="btn-modal btn-modal-muted" onclick="closeResetModal()">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<!-- WHO SCORED MODAL -->
+<div class="modal-overlay" id="who-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="who-modal-title">Wie deed het?</div>
+    <div class="modal-sub" id="who-modal-sub"></div>
+    <div class="modal-btn-row">
+      <button class="btn-modal btn-modal-user" onclick="resolveWho('user')">👤 Jij</button>
+      <button class="btn-modal btn-modal-partner" onclick="resolveWho('partner')">💑 Vriendin</button>
+      <button class="btn-modal btn-modal-muted" onclick="closeWhoModal()">Annuleren</button>
+    </div>
+  </div>
+</div>
 
 <!-- SYNC MODAL -->
 <div class="modal-overlay" id="sync-modal">
@@ -161,6 +192,7 @@ body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-
       </div>
     </div>
     <button class="sync-btn" onclick="showSyncModal()">📲 Sync via QR-Code</button>
+    <button class="reset-btn" onclick="showResetModal()">🗑️ Nieuw Spel</button>
   </div>
 
   <div class="phase-scroll" id="phase-pills"></div>
@@ -324,12 +356,17 @@ let scores = { user: 0, partner: 0 };
 let currentPhase = null;
 let completedQuests = new Set();
 let bingoDone = new Set();
+let shownChallenges = {};
+let whoCallback = null;
 
 function saveState() {
   localStorage.setItem('gala_scores', JSON.stringify(scores));
   localStorage.setItem('gala_quests', JSON.stringify([...completedQuests]));
   localStorage.setItem('gala_bingo', JSON.stringify([...bingoDone]));
   localStorage.setItem('gala_phase', currentPhase || '');
+  const shownSerialized = {};
+  for (const [k, v] of Object.entries(shownChallenges)) shownSerialized[k] = [...v];
+  localStorage.setItem('gala_shown', JSON.stringify(shownSerialized));
 }
 
 function loadState() {
@@ -342,6 +379,11 @@ function loadState() {
     if (b) bingoDone = new Set(JSON.parse(b));
     const ph = localStorage.getItem('gala_phase');
     if (ph) currentPhase = ph;
+    const sh = localStorage.getItem('gala_shown');
+    if (sh) {
+      const parsed = JSON.parse(sh);
+      for (const [k, v] of Object.entries(parsed)) shownChallenges[k] = new Set(v);
+    }
   } catch(e) {}
 }
 
@@ -412,11 +454,18 @@ function restorePhaseUI() {
 function nextChallenge() {
   if (!currentPhase) { showToast('Kies eerst een fase!'); return; }
   const list = CHALLENGES[currentPhase];
-  const text = list[Math.floor(Math.random() * list.length)];
+  if (!shownChallenges[currentPhase]) shownChallenges[currentPhase] = new Set();
+  const seen = shownChallenges[currentPhase];
+  const available = list.map((_, i) => i).filter(i => !seen.has(i));
+  const pool = available.length > 0 ? available : list.map((_, i) => i);
+  if (available.length === 0) seen.clear();
+  const idx = pool[Math.floor(Math.random() * pool.length)];
+  seen.add(idx);
   const el = document.getElementById('challenge-text');
   el.classList.remove('placeholder');
-  el.textContent = text;
+  el.textContent = list[idx];
   document.getElementById('score-btns').classList.add('visible');
+  saveState();
 }
 
 function renderQuests() {
@@ -449,11 +498,13 @@ function renderQuests() {
 
 function completeQuest(id, pts) {
   if (completedQuests.has(id)) { showToast('Al voltooid!'); return; }
-  completedQuests.add(id);
-  document.getElementById('quest-' + id).classList.add('done');
-  document.getElementById('check-' + id).textContent = '✓';
-  addScore('user', pts);
-  showToast('+' + pts + ' punten!');
+  showWhoModal('+' + pts + ' pts — Wie deed het?', '', who => {
+    completedQuests.add(id);
+    document.getElementById('quest-' + id).classList.add('done');
+    document.getElementById('check-' + id).textContent = '✓';
+    addScore(who, pts);
+    showToast('+' + pts + ' punten!');
+  });
 }
 
 function renderBingo() {
@@ -464,13 +515,64 @@ function renderBingo() {
     el.textContent = item;
     el.onclick = () => {
       if (bingoDone.has(i)) return;
-      bingoDone.add(i);
-      el.classList.add('active');
-      addScore('user', 5);
-      showToast('+5 punten! Bingo!');
+      showWhoModal('Bingo! +5 pts — Wie spotted het?', '', who => {
+        bingoDone.add(i);
+        el.classList.add('active');
+        addScore(who, 5);
+        showToast('+5 punten! Bingo!');
+      });
     };
     grid.appendChild(el);
   });
+}
+
+function showResetModal() {
+  document.getElementById('reset-modal').classList.add('visible');
+}
+
+function closeResetModal() {
+  document.getElementById('reset-modal').classList.remove('visible');
+}
+
+function doReset() {
+  scores = { user: 0, partner: 0 };
+  completedQuests = new Set();
+  bingoDone = new Set();
+  currentPhase = null;
+  shownChallenges = {};
+  ['gala_scores','gala_quests','gala_bingo','gala_phase','gala_shown'].forEach(k => localStorage.removeItem(k));
+  document.getElementById('score-user').textContent = '0';
+  document.getElementById('score-partner').textContent = '0';
+  document.getElementById('score-display').textContent = '0 pts';
+  document.getElementById('header-phase').textContent = 'Kies een fase hieronder';
+  document.querySelectorAll('.phase-pill').forEach(p => p.classList.remove('active'));
+  const ct = document.getElementById('challenge-text');
+  ct.textContent = 'Kies een fase en tik op Volgende Uitdaging';
+  ct.classList.add('placeholder');
+  document.getElementById('score-btns').classList.remove('visible');
+  document.getElementById('quest-list').innerHTML = '';
+  renderQuests();
+  document.getElementById('bingo-grid').innerHTML = '';
+  renderBingo();
+  closeResetModal();
+  showToast('🗑️ Nieuw spel gestart!');
+}
+
+function showWhoModal(title, sub, callback) {
+  whoCallback = callback;
+  document.getElementById('who-modal-title').textContent = title;
+  document.getElementById('who-modal-sub').textContent = sub;
+  document.getElementById('who-modal').classList.add('visible');
+}
+
+function resolveWho(who) {
+  document.getElementById('who-modal').classList.remove('visible');
+  if (whoCallback) { whoCallback(who); whoCallback = null; }
+}
+
+function closeWhoModal() {
+  document.getElementById('who-modal').classList.remove('visible');
+  whoCallback = null;
 }
 
 let pendingImportData = null;
