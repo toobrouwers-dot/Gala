@@ -1,0 +1,16 @@
+{
+  "name": "Klapband gala",
+  "short_name": "Klapband",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "description": "Drankspel scoreboard voor Klapband gala",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
