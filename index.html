@@ -1,43 +1,346 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Gala Royale</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gala Royale">
+<meta name="theme-color" content="#0a0a0a">
+<title>Gala Royale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0a;--surface:#141414;--surface2:#1e1e1e;
+  --border:rgba(255,255,255,.08);--accent:#c9a84c;--accent2:#e8cd87;
+  --purple:#7f77dd;--text:#f5f5f5;--muted:#888;--success:#4caf50;
+  --danger:#e53935;--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:var(--bg)}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;max-width:430px;margin:0 auto;position:relative;overflow-x:hidden}
+
+/* NAV */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(14,14,14,.97);backdrop-filter:blur(12px);border-top:.5px solid var(--border);display:flex;padding-bottom:var(--safe-bot);z-index:100}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 0 8px;background:none;border:none;color:var(--muted);font-family:'Barlow',sans-serif;font-size:9px;font-weight:500;letter-spacing:.3px;cursor:pointer;transition:color .2s;text-transform:uppercase}
+.nav-btn.active{color:var(--accent)}
+.nav-btn svg{width:21px;height:21px}
+
+/* PAGES */
+.page{display:none;padding-bottom:calc(70px + var(--safe-bot))}
+.page.active{display:block}
+
+/* HEADER */
+.page-header{padding:calc(var(--safe-top) + 16px) 20px 16px;position:sticky;top:0;background:rgba(10,10,10,.93);backdrop-filter:blur(12px);z-index:50;border-bottom:.5px solid var(--border)}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:800;letter-spacing:.5px;text-transform:uppercase}
+.page-sub{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* SCORE HERO */
+.score-hero{padding:24px 20px 20px;background:linear-gradient(160deg,#12100a 0%,var(--bg) 60%);border-bottom:.5px solid var(--border)}
+.score-greeting{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px}
+.score-title{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:800;line-height:1;text-transform:uppercase;margin-bottom:20px}
+.stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border);border-radius:12px;overflow:hidden}
+.stat-box{background:var(--surface);padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:800;color:var(--accent)}
+.stat-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;text-align:center}
+
+/* PHASE PILLS */
+.phase-scroll{overflow-x:auto;display:flex;gap:8px;padding:16px 20px;scrollbar-width:none}
+.phase-scroll::-webkit-scrollbar{display:none}
+.phase-pill{white-space:nowrap;padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;flex-shrink:0}
+.phase-pill.active{background:rgba(201,168,76,.15);border-color:var(--accent);color:var(--accent)}
+
+/* CHALLENGE CARD */
+.challenge-section{padding:0 16px 16px}
+.challenge-card{background:var(--surface);border:.5px solid var(--border);border-radius:20px;padding:32px 24px;text-align:center;min-height:160px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;position:relative;overflow:hidden}
+.challenge-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,168,76,.06),transparent);pointer-events:none}
+.challenge-text{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;line-height:1.3;color:var(--text)}
+.challenge-text.placeholder{color:var(--muted);font-size:18px;font-weight:400}
+.btn-next{width:100%;padding:16px;border-radius:14px;border:.5px solid rgba(201,168,76,.4);background:linear-gradient(135deg,rgba(201,168,76,.2),rgba(201,168,76,.08));color:var(--accent);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+.btn-next:active{transform:scale(.97)}
+
+/* QUESTS */
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;padding:20px 20px 10px}
+.quest-card{margin:0 16px 10px;background:var(--surface);border-radius:14px;border:.5px solid var(--border);padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;animation:slideUp .3s ease both}
+.quest-card:active{transform:scale(.98)}
+.quest-card.done{opacity:.4}
+.quest-card.done .quest-check{background:rgba(76,175,80,.15);border-color:var(--success);color:var(--success)}
+.quest-check{width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:16px;background:var(--surface2)}
+.quest-info{flex:1}
+.quest-title{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;text-transform:uppercase}
+.quest-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.quest-pts{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--accent)}
+
+/* BINGO */
+.bingo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:16px}
+.bingo-item{background:var(--surface);border:.5px solid var(--border);border-radius:12px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;text-align:center;padding:8px;color:var(--muted);cursor:pointer;transition:all .25s;line-height:1.3;font-weight:500}
+.bingo-item.active{background:rgba(201,168,76,.15);border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* TOAST */
+.toast{position:fixed;top:calc(var(--safe-top) + 12px);left:50%;transform:translateX(-50%) translateY(-80px);background:var(--surface2);border:.5px solid var(--border);border-radius:12px;padding:10px 18px;font-size:13px;font-weight:600;z-index:999;transition:transform .3s;white-space:nowrap;color:var(--accent)}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.pop{animation:pop .25s ease}
+</style>
 </head>
 <body>
-    <header class="score-bar">
-        <div class="player"><span class="name">Jij</span><span id="score-user" class="score">0</span></div>
-        <div class="divider">|</div>
-        <div class="player"><span class="name">Vriendin</span><span id="score-partner" class="score">0</span></div>
-    </header>
 
-    <div class="phase-selector">
-        <select id="phase-select" onchange="game.changePhase()"></select>
+<div class="toast" id="toast"></div>
+
+<!-- UITDAGINGEN -->
+<div class="page active" id="page-main">
+  <div class="page-header">
+    <div class="page-title">🥂 Gala Royale</div>
+    <div class="page-sub" id="header-phase">Kies een fase hieronder</div>
+  </div>
+
+  <div class="score-hero">
+    <div class="score-greeting">Jouw Score</div>
+    <div class="score-title" id="score-display">0 pts</div>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-num" id="score-user">0</div>
+        <div class="stat-label">👤 Jij</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="score-partner">0</div>
+        <div class="stat-label">💑 Vriendin</div>
+      </div>
     </div>
+  </div>
 
-    <main id="view-container">
-        <section id="view-challenges" class="view">
-            <div class="card" id="challenge-card"><p id="challenge-text">Kies een fase en start...</p></div>
-            <button onclick="game.nextChallenge()" class="btn-primary">Volgende Uitdaging</button>
-        </section>
-        <section id="view-quests" class="view hidden">
-            <h2 class="section-title">Gala Quests</h2>
-            <div id="quest-list"></div>
-        </section>
-        <section id="view-bingo" class="view hidden">
-            <div class="bingo-grid" id="bingo-grid"></div>
-        </section>
-    </main>
+  <div class="phase-scroll" id="phase-pills"></div>
 
-    <nav class="bottom-nav">
-        <button onclick="ui.switchView('challenges')">Main</button>
-        <button onclick="ui.switchView('quests')">Quests</button>
-        <button onclick="ui.switchView('bingo')">Bingo</button>
-    </nav>
+  <div class="challenge-section">
+    <div class="challenge-card" id="challenge-card">
+      <div class="challenge-text placeholder" id="challenge-text">Kies een fase en tik op Volgende Uitdaging</div>
+    </div>
+    <button class="btn-next" onclick="nextChallenge()">⚡ Volgende Uitdaging</button>
+  </div>
+</div>
 
-    <script src="assets/js/content.js"></script>
-    <script src="assets/js/app.js"></script>
+<!-- QUESTS -->
+<div class="page" id="page-quests">
+  <div class="page-header">
+    <div class="page-title">🏆 Quests</div>
+    <div class="page-sub">Verdien extra punten</div>
+  </div>
+  <div id="quest-list"></div>
+</div>
+
+<!-- BINGO -->
+<div class="page" id="page-bingo">
+  <div class="page-header">
+    <div class="page-title">🎯 Bingo</div>
+    <div class="page-sub">Tik aan wat je ziet — elk item eenmalig +5 pts</div>
+  </div>
+  <div class="bingo-grid" id="bingo-grid"></div>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-btn active" onclick="switchPage('main', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    Uitdaging
+  </button>
+  <button class="nav-btn" onclick="switchPage('quests', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Quests
+  </button>
+  <button class="nav-btn" onclick="switchPage('bingo', this)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Bingo
+  </button>
+</nav>
+
+<script>
+const PHASES = [
+  { emoji:"🚗", name:"Heenreis" },
+  { emoji:"👔", name:"Verkleden" },
+  { emoji:"🥂", name:"Proosten" },
+  { emoji:"🍽️", name:"Diner" },
+  { emoji:"💃", name:"Feest" }
+];
+
+const CHALLENGES = {
+  "Heenreis": [
+    "Spot een limo: iedereen 2 slokken.",
+    "Zing mee met het volgende nummer — wie stopt drinkt.",
+    "Zie je een formeel jasje? Proost!",
+    "Selfie in de auto: degene die het meest blij kijkt hoeft niet te drinken.",
+    "Eerste die een trouwauto ziet: deel 3 slokken uit.",
+    "Noem 3 gala-thema's in 10 sec, anders 1 slok.",
+    "Doe de koninklijke wave uit het raam: iedereen drinkt mee."
+  ],
+  "Verkleden": [
+    "Spiegel-selfie samen: proost!",
+    "Parfum overload in de buurt: 1 slok.",
+    "Stropdas scheef gezien? Die persoon drinkt.",
+    "Schoen niet dicht: 2 slokken voor de eigenaar.",
+    "Pose als een model: wie lacht drinkt.",
+    "Vergeet je iemands naam? 1 slok straf."
+  ],
+  "Proosten": [
+    "Iemand zegt 'Gezellig': drink.",
+    "Check: glas leeg? Bonus slok.",
+    "Bodem van het glas zichtbaar: iedereen drinkt.",
+    "Zeg 'Proost' zonder te drinken: 2 slokken.",
+    "Iemand morst iets: diegene drinkt dubbel.",
+    "Proosten met de verkeerde hand: 1 slok."
+  ],
+  "Diner": [
+    "Stilte langer dan 5 sec: 1 slok.",
+    "Bestek valt: iedereen drinkt.",
+    "Serveerster vergeet iets: jij deelt 3 slokken uit.",
+    "Iemand eet met verkeerd bestek: diegene drinkt.",
+    "Soep gespetterd: 2 slokken.",
+    "Als je 'lekker' zegt: drink.",
+    "Tik je per ongeluk je glas aan: 1 slok."
+  ],
+  "Feest": [
+    "Macarena op de dansvloer: iedereen drinkt.",
+    "Schoenen uit: 5 slokken.",
+    "DJ draait een throwback: drink tot het refrein.",
+    "Iemand valt op de dansvloer: 3 slokken voor getuigen.",
+    "Dansen met een wildvreemde: deel 2 slokken uit.",
+    "Slechte overgang door de DJ: jij bepaalt wie drinkt.",
+    "Balladen: vlak knuffelen = 2 slokken."
+  ]
+};
+
+const QUESTS = [
+  { id:1, title:"Social Butterfly", desc:"Praat met de ceremoniemeester", pts:50 },
+  { id:2, title:"Paparazzi", desc:"Maak een stiekem foto van een koppel", pts:30 },
+  { id:3, title:"Dance King/Queen", desc:"Laat 3 mensen mee dansen", pts:100 },
+  { id:4, title:"Netwerker", desc:"Vraag iemands nummer die je nog niet kent", pts:40 },
+  { id:5, title:"Fotobooth Ster", desc:"Maak een foto in de fotobooth", pts:25 },
+  { id:6, title:"Charmeur", desc:"Complimenteer iemands outfit", pts:20 },
+  { id:7, title:"Ster van de Avond", desc:"Nodig iemand uit voor een dans", pts:60 },
+  { id:8, title:"Mysterieuze Gast", desc:"Vertel een verzinsel over jezelf aan iemand", pts:35 }
+];
+
+const BINGO_ITEMS = [
+  "Limo gespot","Stropdas scheef","Iemand valt","Bitterbal","Selfie-stick","Iemand huilt",
+  "Slechte DJ","Lege fles","Alleen dansen","Verloren schoen","Moeder danst mee","Fotobooth rij",
+  "Kaarsje omgegooid","Toespraak","Matching outfits"
+];
+
+let scores = { user: 0, partner: 0 };
+let currentPhase = null;
+let completedQuests = new Set();
+let bingoDone = new Set();
+
+function switchPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+function addScore(amount) {
+  scores.user += amount;
+  const el = document.getElementById('score-user');
+  el.textContent = scores.user;
+  el.classList.remove('pop');
+  void el.offsetWidth;
+  el.classList.add('pop');
+  document.getElementById('score-display').textContent = scores.user + ' pts';
+}
+
+function initPhases() {
+  const container = document.getElementById('phase-pills');
+  PHASES.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'phase-pill';
+    btn.textContent = p.emoji + ' ' + p.name;
+    btn.onclick = () => selectPhase(p, btn);
+    container.appendChild(btn);
+  });
+}
+
+function selectPhase(phase, btn) {
+  document.querySelectorAll('.phase-pill').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPhase = phase.name;
+  document.getElementById('header-phase').textContent = phase.emoji + ' ' + phase.name;
+  document.getElementById('challenge-text').textContent = 'Tik op Volgende Uitdaging!';
+  document.getElementById('challenge-text').classList.remove('placeholder');
+}
+
+function nextChallenge() {
+  if (!currentPhase) { showToast('Kies eerst een fase!'); return; }
+  const list = CHALLENGES[currentPhase];
+  const text = list[Math.floor(Math.random() * list.length)];
+  const el = document.getElementById('challenge-text');
+  el.classList.remove('placeholder');
+  el.textContent = text;
+  addScore(1);
+  showToast('+1 punt!');
+}
+
+function renderQuests() {
+  const list = document.getElementById('quest-list');
+  const title = document.createElement('div');
+  title.className = 'section-title';
+  title.textContent = 'Missies';
+  list.appendChild(title);
+  QUESTS.forEach((q, i) => {
+    const card = document.createElement('div');
+    card.className = 'quest-card';
+    card.style.animationDelay = (i * 0.05) + 's';
+    card.id = 'quest-' + q.id;
+    card.innerHTML = `
+      <div class="quest-check" id="check-${q.id}">☐</div>
+      <div class="quest-info">
+        <div class="quest-title">${q.title}</div>
+        <div class="quest-desc">${q.desc}</div>
+      </div>
+      <div class="quest-pts">+${q.pts}</div>
+    `;
+    card.onclick = () => completeQuest(q.id, q.pts);
+    list.appendChild(card);
+  });
+}
+
+function completeQuest(id, pts) {
+  if (completedQuests.has(id)) { showToast('Al voltooid!'); return; }
+  completedQuests.add(id);
+  document.getElementById('quest-' + id).classList.add('done');
+  document.getElementById('check-' + id).textContent = '✓';
+  addScore(pts);
+  showToast('+' + pts + ' punten!');
+}
+
+function renderBingo() {
+  const grid = document.getElementById('bingo-grid');
+  BINGO_ITEMS.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'bingo-item';
+    el.textContent = item;
+    el.onclick = () => {
+      if (bingoDone.has(i)) return;
+      bingoDone.add(i);
+      el.classList.add('active');
+      addScore(5);
+      showToast('+5 punten! Bingo!');
+    };
+    grid.appendChild(el);
+  });
+}
+
+initPhases();
+renderQuests();
+renderBingo();
+</script>
 </body>
 </html>
